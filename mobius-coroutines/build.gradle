@@ -1,0 +1,20 @@
+apply plugin: 'kotlin'
+
+configure([compileKotlin, compileTestKotlin]) {
+    kotlinOptions {
+        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlinxCoroutines}"
+
+    api project(':mobius-core')
+
+    testImplementation project(':mobius-test')
+    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlinxCoroutines}"
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
