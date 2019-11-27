@@ -19,11 +19,14 @@
  */
 package com.spotify.mobius.flow
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.invoke
 
 fun <F : Any, E> subtypeEffectHandler(
     block: SubtypeEffectHandlerBuilder<F, E>.() -> Unit
@@ -53,21 +56,24 @@ class SubtypeEffectHandlerBuilder<F : Any, E> {
     ) = addAction(G::class.java, effectHandler)
 
     inline fun <reified G : F> addFunctionSync(
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
         crossinline effectHandler: (effect: G) -> E
     ) = addFunction(G::class.java) { effect ->
-        effectHandler(effect)
+        dispatcher { effectHandler(effect) }
     }
 
     inline fun <reified G : F> addConsumerSync(
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
         crossinline effectHandler: (effect: G) -> Unit
     ) = addConsumer(G::class.java) { effect ->
-        effectHandler(effect)
+        dispatcher { effectHandler(effect) }
     }
 
     inline fun <reified G : F> addActionSync(
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
         crossinline effectHandler: () -> Unit
     ) = addAction(G::class.java) {
-        effectHandler()
+        dispatcher { effectHandler() }
     }
 
     fun <G : F> addTransformer(
